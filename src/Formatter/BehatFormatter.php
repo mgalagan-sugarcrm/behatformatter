@@ -185,6 +185,11 @@ class BehatFormatter implements Formatter {
      */
     private $skippedSteps;
 
+    /**
+     * Screen shot source folder
+     * @var string
+     */
+    private $screenShotPath;
 
     //</editor-fold>
 
@@ -193,7 +198,7 @@ class BehatFormatter implements Formatter {
      * @param $name
      * @param $base_path
      */
-    function __construct($name, $projectName, $projectImage, $projectDescription, $renderer, $filename, $print_args, $print_outp, $loop_break, $show_tags, $base_path)
+    function __construct($name, $projectName, $projectImage, $projectDescription, $renderer, $filename, $print_args, $print_outp, $loop_break, $show_tags, $screenShotPath, $base_path)
     {
         $this->projectname = $projectName;
         $this->projectimage = $projectImage;
@@ -204,6 +209,7 @@ class BehatFormatter implements Formatter {
         $this->print_outp = $print_outp;
         $this->loop_break = $loop_break;
         $this->show_tags = $show_tags;
+        $this->screenShotPath = $screenShotPath;
         $this->renderer = new BaseRenderer($renderer, $base_path);
         $this->printer = new FileOutputPrinter($this->renderer->getNameList(), $filename, $base_path);
         $this->timer = new Timer();
@@ -252,14 +258,17 @@ class BehatFormatter implements Formatter {
     /**
      * Copy temporary screenshot folder to the assets folder
      */
-    public function copyTempScreenshotDirectory(){
-        $source = getcwd().DIRECTORY_SEPARATOR.".tmp_behatFormatter";
+    public function copyTempScreenshotDirectory()
+    {
         $destination = $this->printer->getOutputPath() . DIRECTORY_SEPARATOR . 'assets'.DIRECTORY_SEPARATOR.'screenshots';
+        if (!is_dir($this->screenShotPath) || $this->screenShotPath == $destination) {
+            return;
+        }
 
         if (is_dir($destination)) {
             exec("rm -rf ". $destination);
         }
-        rename($source, $destination);
+        rename($this->screenShotPath, $destination);
     }
 
     /**
@@ -720,7 +729,7 @@ class BehatFormatter implements Formatter {
             $screenshot = $event->getSuite()->getName().".".basename($event->getFeature()->getFile()).".".$event->getStep()->getLine().".png";
             $screenshot = str_replace('.feature', '', $screenshot);
 
-            if (file_exists(getcwd().DIRECTORY_SEPARATOR.".tmp_behatFormatter".DIRECTORY_SEPARATOR.$screenshot)){
+            if (file_exists($this->screenShotPath . DIRECTORY_SEPARATOR . $screenshot)){
                 $screenshot = 'assets'.DIRECTORY_SEPARATOR.'screenshots'.DIRECTORY_SEPARATOR.$screenshot;
                 $step->setScreenshot($screenshot);
             }

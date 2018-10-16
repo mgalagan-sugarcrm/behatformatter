@@ -62,6 +62,7 @@ class BehatFormatterExtension implements ExtensionInterface {
     $builder->children()->scalarNode("loop_break")->defaultValue("false");
     $builder->children()->scalarNode("show_tags")->defaultValue("false");
     $builder->children()->scalarNode('output')->defaultValue('.');
+    $builder->children()->scalarNode("screenShotPath")->defaultValue(null);
   }
 
   /**
@@ -82,6 +83,7 @@ class BehatFormatterExtension implements ExtensionInterface {
     $definition->addArgument($config['print_outp']);
     $definition->addArgument($config['loop_break']);
     $definition->addArgument($config['show_tags']);
+    $definition->addArgument($config['screenShotPath']);
 
     $definition->addArgument('%paths.base%');
     $container->setDefinition("html.formatter", $definition)
