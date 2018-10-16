@@ -52,8 +52,8 @@ class BehatFormatterContext extends MinkContext implements SnippetAcceptingConte
     {
         $currentSuite = self::$currentSuite;
 
-        //if test has failed, and is not an api test, get screenshot
-        if(!$scope->getTestResult()->isPassed() || $scope->getStep()->getKeywordType() === "Then")
+        // Get screen shot on failed test
+        if(!$scope->getTestResult()->isPassed())
         {
             $driver = $this->getSession()->getDriver();
             if (!$driver instanceof Selenium2Driver) {
@@ -64,22 +64,7 @@ class BehatFormatterContext extends MinkContext implements SnippetAcceptingConte
             $fileName = $currentSuite.".".basename($scope->getFeature()->getFile()).'.'.$scope->getStep()->getLine().'.png';
             $fileName = str_replace('.feature', '', $fileName);
 
-            /*
-             * Determine destination folder!
-             * This must be equal to the printer output path.
-             * How the fuck do I get that in here???
-             *
-             * Fuck it, create a temporary folder for the screenshots and
-             * let the Printer copy those to the assets folder.
-             * Spend too many time here! And output is not the contexts concern, it's the printers concern.
-             */
-
-            $temp_destination = getcwd().DIRECTORY_SEPARATOR.".tmp_behatFormatter";
-            if (! is_dir($temp_destination)) {
-                mkdir($temp_destination, 0777, true);
-            }
-
-            $this->saveScreenshot($fileName, $temp_destination);
+            $this->saveScreenshot($fileName);
         }
     }
 }
